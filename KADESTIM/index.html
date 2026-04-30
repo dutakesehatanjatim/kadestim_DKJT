@@ -9,6 +9,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- AOS Animation -->
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <style>
@@ -61,9 +63,23 @@
             border-radius: 40px;
             padding: 8px 20px;
             font-weight: 500;
+            transition: 0.3s;
         }
         .btn-outline-success-custom:hover {
             background: #2b9c5c;
+            color: white;
+        }
+        .btn-outline-danger-custom {
+            border: 1px solid #dc2626;
+            background: white;
+            color: #dc2626;
+            border-radius: 40px;
+            padding: 8px 20px;
+            font-weight: 500;
+            transition: 0.3s;
+        }
+        .btn-outline-danger-custom:hover {
+            background: #dc2626;
             color: white;
         }
         /* Hero Section */
@@ -117,6 +133,7 @@
             border-radius: 100px;
             font-size: 0.8rem;
             padding: 5px 12px;
+            display: inline-block;
         }
         .btn-modern {
             border-radius: 40px;
@@ -165,11 +182,38 @@
         .action-icons i:hover {
             color: #2b9c5c;
         }
+        .admin-badge {
+            background: #2b9c5c;
+            color: white;
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-size: 0.75rem;
+            margin-left: 10px;
+        }
         .event-img {
             width: 100%;
             height: 180px;
             object-fit: cover;
             border-radius: 20px;
+        }
+        .login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .login-card {
+            background: white;
+            border-radius: 32px;
+            padding: 40px;
+            width: 400px;
+            max-width: 90%;
         }
         @media (max-width: 768px) {
             .hero h1 { font-size: 2rem; }
@@ -179,7 +223,7 @@
 <body>
 
 <!-- Navbar -->
-<nav class="navbar navbar-expand-lg fixed-top">
+<nav class="navbar navbar-expand-lg fixed-top" id="mainNavbar">
     <div class="container">
         <a class="navbar-brand" href="#"><i class="fas fa-heartbeat"></i> DutaKes Jatim</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -191,9 +235,9 @@
                 <li class="nav-item"><a class="nav-link" href="#events">Event</a></li>
                 <li class="nav-item"><a class="nav-link" href="#info-sehat">Info Sehat</a></li>
                 <li class="nav-item"><a class="nav-link" href="#tentang">Tentang</a></li>
-                <li class="nav-item ms-2">
-                    <button class="btn btn-outline-success-custom" data-bs-toggle="modal" data-bs-target="#adminModal" id="openAdminBtn">
-                        <i class="fas fa-user-shield"></i> Kelola Konten
+                <li class="nav-item ms-2" id="adminButtonContainer">
+                    <button class="btn btn-outline-success-custom" id="loginAdminBtn">
+                        <i class="fas fa-user-shield"></i> Admin Login
                     </button>
                 </li>
             </ul>
@@ -220,25 +264,22 @@
     </div>
 </section>
 
-<!-- Event Section + Info Kesehatan Section -->
+<!-- Event Section -->
 <div class="container mt-5 pt-4" id="events">
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
         <div><h2 class="section-title">📅 Event & Kegiatan</h2><p class="text-muted">Ikuti event kesehatan terbaru dari Duta Kesehatan Jatim</p></div>
-        <button class="btn btn-primary-custom btn-modern" data-bs-toggle="modal" data-bs-target="#eventModal" id="addEventBtn"><i class="fas fa-plus-circle"></i> Tambah Event</button>
+        <button class="btn btn-primary-custom btn-modern" id="addEventBtn" style="display: none;"><i class="fas fa-plus-circle"></i> Tambah Event</button>
     </div>
-    <div class="row" id="eventsContainer">
-        <!-- Events akan di-load via JS -->
-    </div>
+    <div class="row" id="eventsContainer"></div>
 </div>
 
+<!-- Info Kesehatan Section -->
 <div class="container mt-5 pt-3" id="info-sehat">
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
         <div><h2 class="section-title">📰 Informasi Kesehatan</h2><p class="text-muted">Artikel dan tips dari para ahli</p></div>
-        <button class="btn btn-primary-custom btn-modern" data-bs-toggle="modal" data-bs-target="#infoModal" id="addInfoBtn"><i class="fas fa-plus-circle"></i> Tambah Info</button>
+        <button class="btn btn-primary-custom btn-modern" id="addInfoBtn" style="display: none;"><i class="fas fa-plus-circle"></i> Tambah Info</button>
     </div>
-    <div class="row" id="infoContainer">
-        <!-- Info kesehatan akan di-load via JS -->
-    </div>
+    <div class="row" id="infoContainer"></div>
 </div>
 
 <!-- Tentang Section -->
@@ -272,19 +313,36 @@
             </div>
             <div class="col-md-4 mb-3">
                 <h5>Ikuti Kami</h5>
-                <div class="fs-4">
-                    <i class="fab fa-instagram me-3"></i> dutakesehatan.jatim</p>
-                    <i class="fab fa-twitter me-3"></i>
-                    <i class="fab fa-facebook"></i>
+                <div>
+                    <i class="fab fa-instagram me-3"></i> dutakesehatan.jatim
                 </div>
             </div>
         </div>
         <hr class="opacity-25">
-        <div class="text-center small">© 2026 Duta Kesehatan Jawa Timur | Semua konten dapat dikelola oleh admin.</div>
+        <div class="text-center small">© 2026 Duta Kesehatan Jawa Timur</div>
     </div>
 </footer>
 
-<!-- MODAL: Event Form (Tambah/Ubah) -->
+<!-- MODAL LOGIN ADMIN -->
+<div id="loginOverlay" class="login-overlay" style="display: none;">
+    <div class="login-card">
+        <h3 class="text-center mb-4"><i class="fas fa-user-shield"></i> Login Admin</h3>
+        <form id="adminLoginForm">
+            <div class="mb-3">
+                <label>Username</label>
+                <input type="text" class="form-control" id="loginUsername" required placeholder="admin">
+            </div>
+            <div class="mb-3">
+                <label>Password</label>
+                <input type="password" class="form-control" id="loginPassword" required placeholder="******">
+            </div>
+            <button type="submit" class="btn btn-primary-custom w-100">Login</button>
+            <p class="text-muted text-center mt-3 small">Demo: admin / admin123</p>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL: Event Form -->
 <div class="modal fade" id="eventModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -331,60 +389,149 @@
     </div>
 </div>
 
-<!-- MODAL ADMIN (Info akun sederhana) -->
-<div class="modal fade" id="adminModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header border-0">
-                <h5 class="modal-title"><i class="fas fa-lock"></i> Panel Admin Konten</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <p>Anda dapat mengelola <strong>Event</strong> dan <strong>Informasi Kesehatan</strong> dengan mudah.</p>
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item bg-transparent"><i class="fas fa-plus-circle text-success"></i> Tambah event / info</li>
-                    <li class="list-group-item bg-transparent"><i class="fas fa-edit text-primary"></i> Edit (klik ikon pensil)</li>
-                    <li class="list-group-item bg-transparent"><i class="fas fa-trash-alt text-danger"></i> Hapus data</li>
-                </ul>
-                <hr>
-                <p class="text-muted small">*Data tersimpan di localStorage browser untuk demo, namun dapat diintegrasikan ke backend nantinya.</p>
-            </div>
-        </div>
-    </div>
-</div>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 <script>
     AOS.init({ duration: 800, once: true });
 
-    // --- Data Management dengan localStorage ---
+    // Status Admin
+    let isAdminLoggedIn = false;
+
+    // Data
     let events = [];
     let infos = [];
 
-    // Load initial data jika kosong
+    // Cek session admin dari localStorage
+    function checkAdminSession() {
+        const savedSession = localStorage.getItem('kadestim_admin_logged_in');
+        if (savedSession === 'true') {
+            isAdminLoggedIn = true;
+            showAdminUI();
+        } else {
+            isAdminLoggedIn = false;
+            showPublicUI();
+        }
+    }
+
+    // Tampilkan UI untuk Admin
+    function showAdminUI() {
+        // Tampilkan tombol tambah
+        document.getElementById('addEventBtn').style.display = 'inline-block';
+        document.getElementById('addInfoBtn').style.display = 'inline-block';
+        
+        // Ubah tombol admin jadi Logout
+        const adminContainer = document.getElementById('adminButtonContainer');
+        adminContainer.innerHTML = `
+            <div class="d-flex gap-2">
+                <span class="admin-badge"><i class="fas fa-user-check"></i> Admin</span>
+                <button class="btn btn-outline-danger-custom" id="logoutAdminBtn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        `;
+        
+        // Attach logout event
+        document.getElementById('logoutAdminBtn')?.addEventListener('click', logoutAdmin);
+        
+        // Render ulang dengan action icons (edit/hapus)
+        renderEvents();
+        renderInfos();
+    }
+
+    // Tampilkan UI untuk Publik (tanpa akses edit/hapus)
+    function showPublicUI() {
+        // Sembunyikan tombol tambah
+        document.getElementById('addEventBtn').style.display = 'none';
+        document.getElementById('addInfoBtn').style.display = 'none';
+        
+        // Kembalikan tombol login
+        const adminContainer = document.getElementById('adminButtonContainer');
+        adminContainer.innerHTML = `
+            <button class="btn btn-outline-success-custom" id="loginAdminBtn">
+                <i class="fas fa-user-shield"></i> Admin Login
+            </button>
+        `;
+        
+        // Attach login event
+        document.getElementById('loginAdminBtn')?.addEventListener('click', showLoginModal);
+        
+        // Render ulang tanpa action icons
+        renderEvents();
+        renderInfos();
+    }
+
+    // Show login modal
+    function showLoginModal() {
+        document.getElementById('loginOverlay').style.display = 'flex';
+    }
+
+    // Login admin
+    function loginAdmin(username, password) {
+        if (username === 'admin' && password === 'admin123') {
+            isAdminLoggedIn = true;
+            localStorage.setItem('kadestim_admin_logged_in', 'true');
+            document.getElementById('loginOverlay').style.display = 'none';
+            Swal.fire({
+                icon: 'success',
+                title: 'Login Berhasil!',
+                text: 'Selamat datang Admin Duta Kesehatan Jatim',
+                timer: 2000,
+                showConfirmButton: false
+            });
+            showAdminUI();
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Login Gagal!',
+                text: 'Username atau password salah',
+            });
+        }
+    }
+
+    // Logout admin
+    function logoutAdmin() {
+        Swal.fire({
+            title: 'Yakin logout?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#dc2626',
+            confirmButtonText: 'Ya, Logout',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                isAdminLoggedIn = false;
+                localStorage.removeItem('kadestim_admin_logged_in');
+                Swal.fire('Logout', 'Anda telah logout dari mode admin', 'info');
+                showPublicUI();
+            }
+        });
+    }
+
+    // Load initial data
     function loadInitialData() {
         const storedEvents = localStorage.getItem('dutakes_events');
         const storedInfos = localStorage.getItem('dutakes_infos');
+        
         if (storedEvents) {
             events = JSON.parse(storedEvents);
         } else {
-            // Data contoh event
             events = [
-                { id: 1, name: "Jalan Sehat Bersama Duta Kesehatan", date: "2025-05-10", location: "Surabaya - Taman Bungkul", desc: "Ajak keluarga untuk berolahraga pagi dan cek kesehatan gratis.", image: "https://placehold.co/600x400/ccf0e2/2b9c5c?text=Jalan+Sehat" },
-                { id: 2, name: "Webinar: Pola Makan Sehat untuk Remaja", date: "2025-05-20", location: "Online (Zoom)", desc: "Diskusi interaktif bersama ahli gizi.", image: "https://placehold.co/600x400/d9f0ff/0b63e5?text=Webinar" }
+                { id: 1, name: "Jalan Sehat Bersama Duta Kesehatan", date: "2026-05-10", location: "Surabaya - Taman Bungkul", desc: "Ajak keluarga untuk berolahraga pagi dan cek kesehatan gratis.", image: "https://placehold.co/600x400/ccf0e2/2b9c5c?text=Jalan+Sehat" },
+                { id: 2, name: "Webinar: Pola Makan Sehat untuk Remaja", date: "2026-05-20", location: "Online (Zoom)", desc: "Diskusi interaktif bersama ahli gizi.", image: "https://placehold.co/600x400/d9f0ff/0b63e5?text=Webinar" }
             ];
             saveEvents();
         }
+        
         if (storedInfos) {
             infos = JSON.parse(storedInfos);
         } else {
             infos = [
-                { id: 1, title: "7 Langkah Cuci Tangan Pakai Sabun", category: "Kebersihan", content: "Cuci tangan adalah cara efektif cegah penyakit. Lakukan dengan sabun mengalir..", imgUrl: "https://placehold.co/600x400/f1f5f9/2b9c5c?text=Cuci+Tangan" },
-                { id: 2, title: "Manfaat Buah Lokal Jawa Timur", category: "Gizi", content: "Jeruk, apel, pisang mengandung vitamin tinggi yang baik untuk imunitas.", imgUrl: "https://placehold.co/600x400/e6f7ec/2b9c5c?text=Buah+Segar" }
+                { id: 1, title: "7 Langkah Cuci Tangan Pakai Sabun", category: "Kebersihan", content: "Cuci tangan adalah cara efektif cegah penyakit. Lakukan dengan sabun mengalir selama 20 detik.", imgUrl: "https://placehold.co/600x400/f1f5f9/2b9c5c?text=Cuci+Tangan" },
+                { id: 2, title: "Manfaat Buah Lokal Jawa Timur", category: "Gizi", content: "Jeruk, apel, pisang mengandung vitamin tinggi yang baik untuk imunitas tubuh.", imgUrl: "https://placehold.co/600x400/e6f7ec/2b9c5c?text=Buah+Segar" }
             ];
             saveInfos();
         }
+        
         renderEvents();
         renderInfos();
     }
@@ -392,14 +539,16 @@
     function saveEvents() { localStorage.setItem('dutakes_events', JSON.stringify(events)); }
     function saveInfos() { localStorage.setItem('dutakes_infos', JSON.stringify(infos)); }
 
-    // Render Events
+    // Render Events (dengan atau tanpa action icons tergantung admin)
     function renderEvents() {
         const container = document.getElementById('eventsContainer');
         if (!container) return;
+        
         if (events.length === 0) {
-            container.innerHTML = `<div class="col-12 text-center py-5"><i class="fas fa-calendar-times fa-3x text-muted"></i><p class="mt-2">Belum ada event. Silakan tambah event baru.</p></div>`;
+            container.innerHTML = `<div class="col-12 text-center py-5"><i class="fas fa-calendar-times fa-3x text-muted"></i><p class="mt-2">Belum ada event.</p></div>`;
             return;
         }
+        
         let html = '';
         events.forEach(event => {
             html += `
@@ -409,10 +558,12 @@
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-start">
                                 <h5 class="card-title fw-bold">${escapeHtml(event.name)}</h5>
-                                <div class="action-icons">
-                                    <i class="fas fa-edit edit-event" data-id="${event.id}" data-bs-toggle="modal" data-bs-target="#eventModal"></i>
-                                    <i class="fas fa-trash-alt delete-event" data-id="${event.id}"></i>
-                                </div>
+                                ${isAdminLoggedIn ? `
+                                    <div class="action-icons">
+                                        <i class="fas fa-edit edit-event" data-id="${event.id}" data-bs-toggle="modal" data-bs-target="#eventModal"></i>
+                                        <i class="fas fa-trash-alt delete-event" data-id="${event.id}"></i>
+                                    </div>
+                                ` : ''}
                             </div>
                             <p class="badge-date mt-2"><i class="far fa-calendar-alt"></i> ${event.date}  |  <i class="fas fa-map-marker-alt"></i> ${escapeHtml(event.location)}</p>
                             <p class="card-text text-muted">${escapeHtml(event.desc)}</p>
@@ -422,17 +573,22 @@
             `;
         });
         container.innerHTML = html;
-        attachEventActionListeners();
+        
+        if (isAdminLoggedIn) {
+            attachEventActionListeners();
+        }
     }
 
     // Render Info Kesehatan
     function renderInfos() {
         const container = document.getElementById('infoContainer');
         if (!container) return;
+        
         if (infos.length === 0) {
-            container.innerHTML = `<div class="col-12 text-center py-5"><i class="fas fa-info-circle fa-3x text-muted"></i><p>Belum ada informasi kesehatan. Silakan tambah.</p></div>`;
+            container.innerHTML = `<div class="col-12 text-center py-5"><i class="fas fa-info-circle fa-3x text-muted"></i><p>Belum ada informasi kesehatan.</p></div>`;
             return;
         }
+        
         let html = '';
         infos.forEach(info => {
             html += `
@@ -442,10 +598,12 @@
                         <div class="card-body">
                             <div class="d-flex justify-content-between">
                                 <h5 class="card-title fw-bold">${escapeHtml(info.title)}</h5>
-                                <div class="action-icons">
-                                    <i class="fas fa-edit edit-info" data-id="${info.id}" data-bs-toggle="modal" data-bs-target="#infoModal"></i>
-                                    <i class="fas fa-trash-alt delete-info" data-id="${info.id}"></i>
-                                </div>
+                                ${isAdminLoggedIn ? `
+                                    <div class="action-icons">
+                                        <i class="fas fa-edit edit-info" data-id="${info.id}" data-bs-toggle="modal" data-bs-target="#infoModal"></i>
+                                        <i class="fas fa-trash-alt delete-info" data-id="${info.id}"></i>
+                                    </div>
+                                ` : ''}
                             </div>
                             <span class="badge bg-light text-dark mb-2">${escapeHtml(info.category)}</span>
                             <p class="card-text text-secondary small">${escapeHtml(info.content.substring(0, 80))}${info.content.length > 80 ? '...' : ''}</p>
@@ -455,10 +613,13 @@
             `;
         });
         container.innerHTML = html;
-        attachInfoActionListeners();
+        
+        if (isAdminLoggedIn) {
+            attachInfoActionListeners();
+        }
     }
 
-    // Event Listeners Delete/Edit
+    // Event Listeners untuk Admin
     function attachEventActionListeners() {
         document.querySelectorAll('.delete-event').forEach(btn => {
             btn.removeEventListener('click', handleDeleteEvent);
@@ -469,6 +630,7 @@
             btn.addEventListener('click', handleEditEvent);
         });
     }
+    
     function attachInfoActionListeners() {
         document.querySelectorAll('.delete-info').forEach(btn => {
             btn.removeEventListener('click', handleDeleteInfo);
@@ -479,14 +641,26 @@
             btn.addEventListener('click', handleEditInfo);
         });
     }
+    
     function handleDeleteEvent(e) {
         const id = parseInt(e.currentTarget.getAttribute('data-id'));
-        if (confirm('Yakin ingin menghapus event ini?')) {
-            events = events.filter(ev => ev.id !== id);
-            saveEvents();
-            renderEvents();
-        }
+        Swal.fire({
+            title: 'Yakin hapus event?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc2626',
+            confirmButtonText: 'Ya, Hapus!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                events = events.filter(ev => ev.id !== id);
+                saveEvents();
+                renderEvents();
+                Swal.fire('Terhapus!', 'Event berhasil dihapus', 'success');
+            }
+        });
     }
+    
     function handleEditEvent(e) {
         const id = parseInt(e.currentTarget.getAttribute('data-id'));
         const event = events.find(ev => ev.id === id);
@@ -500,18 +674,30 @@
             document.getElementById('eventModalLabel').innerText = 'Edit Event';
         }
     }
+    
     function handleDeleteInfo(e) {
         const id = parseInt(e.currentTarget.getAttribute('data-id'));
-        if(confirm('Hapus informasi kesehatan ini?')){
-            infos = infos.filter(info => info.id !== id);
-            saveInfos();
-            renderInfos();
-        }
+        Swal.fire({
+            title: 'Yakin hapus info kesehatan?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc2626',
+            confirmButtonText: 'Ya, Hapus!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                infos = infos.filter(info => info.id !== id);
+                saveInfos();
+                renderInfos();
+                Swal.fire('Terhapus!', 'Info kesehatan berhasil dihapus', 'success');
+            }
+        });
     }
-    function handleEditInfo(e){
+    
+    function handleEditInfo(e) {
         const id = parseInt(e.currentTarget.getAttribute('data-id'));
         const info = infos.find(i => i.id === id);
-        if(info){
+        if (info) {
             document.getElementById('infoId').value = info.id;
             document.getElementById('infoTitle').value = info.title;
             document.getElementById('infoCategory').value = info.category;
@@ -521,95 +707,74 @@
         }
     }
 
-    // Save / Update Event
+    // Save Event
     document.getElementById('saveEventBtn')?.addEventListener('click', () => {
+        if (!isAdminLoggedIn) {
+            Swal.fire('Akses Ditolak', 'Anda harus login sebagai admin', 'error');
+            return;
+        }
+        
         const id = document.getElementById('eventId').value;
         const name = document.getElementById('eventName').value.trim();
         const date = document.getElementById('eventDate').value;
         const location = document.getElementById('eventLocation').value.trim();
         const desc = document.getElementById('eventDesc').value.trim();
         const image = document.getElementById('eventImage').value.trim();
-        if(!name || !date || !location) {
-            alert('Harap isi Nama Event, Tanggal dan Lokasi!');
+        
+        if (!name || !date || !location) {
+            Swal.fire('Error', 'Harap isi Nama Event, Tanggal dan Lokasi!', 'error');
             return;
         }
-        if(id) {
+        
+        if (id) {
             const idx = events.findIndex(ev => ev.id == id);
-            if(idx !== -1){
+            if (idx !== -1) {
                 events[idx] = { ...events[idx], name, date, location, desc, image };
                 saveEvents();
             }
         } else {
-            const newId = events.length > 0 ? Math.max(...events.map(ev=>ev.id)) + 1 : 3;
+            const newId = events.length > 0 ? Math.max(...events.map(ev => ev.id)) + 1 : 3;
             events.push({ id: newId, name, date, location, desc, image });
             saveEvents();
         }
+        
         resetEventModal();
         renderEvents();
         bootstrap.Modal.getInstance(document.getElementById('eventModal')).hide();
+        Swal.fire('Berhasil', 'Event tersimpan', 'success');
     });
 
-    // Save Info Kesehatan
+    // Save Info
     document.getElementById('saveInfoBtn')?.addEventListener('click', () => {
+        if (!isAdminLoggedIn) {
+            Swal.fire('Akses Ditolak', 'Anda harus login sebagai admin', 'error');
+            return;
+        }
+        
         const id = document.getElementById('infoId').value;
         const title = document.getElementById('infoTitle').value.trim();
         const category = document.getElementById('infoCategory').value.trim();
         const content = document.getElementById('infoContent').value.trim();
         const imgUrl = document.getElementById('infoImgUrl').value.trim();
-        if(!title || !category || !content){
-            alert('Judul, Kategori dan Konten harus diisi!');
+        
+        if (!title || !category || !content) {
+            Swal.fire('Error', 'Judul, Kategori dan Konten harus diisi!', 'error');
             return;
         }
-        if(id) {
+        
+        if (id) {
             const idx = infos.findIndex(i => i.id == id);
-            if(idx !== -1){
+            if (idx !== -1) {
                 infos[idx] = { ...infos[idx], title, category, content, imgUrl };
                 saveInfos();
             }
         } else {
-            const newId = infos.length > 0 ? Math.max(...infos.map(i=>i.id)) + 1 : 3;
+            const newId = infos.length > 0 ? Math.max(...infos.map(i => i.id)) + 1 : 3;
             infos.push({ id: newId, title, category, content, imgUrl });
             saveInfos();
         }
+        
         resetInfoModal();
         renderInfos();
         bootstrap.Modal.getInstance(document.getElementById('infoModal')).hide();
-    });
-
-    function resetEventModal() {
-        document.getElementById('eventId').value = '';
-        document.getElementById('eventName').value = '';
-        document.getElementById('eventDate').value = '';
-        document.getElementById('eventLocation').value = '';
-        document.getElementById('eventDesc').value = '';
-        document.getElementById('eventImage').value = '';
-        document.getElementById('eventModalLabel').innerText = 'Tambah Event Baru';
-    }
-    function resetInfoModal() {
-        document.getElementById('infoId').value = '';
-        document.getElementById('infoTitle').value = '';
-        document.getElementById('infoCategory').value = '';
-        document.getElementById('infoContent').value = '';
-        document.getElementById('infoImgUrl').value = '';
-        document.getElementById('infoModalLabel').innerText = 'Tambah Informasi Kesehatan';
-    }
-
-    // Saat modal terbuka untuk tambah, reset form
-    document.getElementById('addEventBtn')?.addEventListener('click', () => resetEventModal());
-    document.getElementById('addInfoBtn')?.addEventListener('click', () => resetInfoModal());
-
-    // Menutup modal admin pun tidak masalah
-    function escapeHtml(str) {
-        if(!str) return '';
-        return str.replace(/[&<>]/g, function(m) {
-            if(m === '&') return '&amp;';
-            if(m === '<') return '&lt;';
-            if(m === '>') return '&gt;';
-            return m;
-        });
-    }
-
-    loadInitialData();
-</script>
-</body>
-</html>
+        Swal.fire('Berhasil', 'Info kesehatan tersimpan', '
