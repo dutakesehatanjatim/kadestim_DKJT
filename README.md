@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+
 <html lang="id">
 <head>
     <meta charset="UTF-8">
@@ -314,7 +314,7 @@
             <div class="col-md-4 mb-3">
                 <h5>Ikuti Kami</h5>
                 <div>
-                    <i class="fab fa-instagram me-3"></i> dutakesehatan.jatim
+                    <i class="fab fa-instagram me-3"></i> dutakesehatan.jatim</p>
                 </div>
             </div>
         </div>
@@ -467,7 +467,7 @@
 
     // Login admin
     function loginAdmin(username, password) {
-        if (username === 'admin' && password === 'admin123') {
+        if (username === 'Kadestim' && password === '17102004F') {
             isAdminLoggedIn = true;
             localStorage.setItem('kadestim_admin_logged_in', 'true');
             document.getElementById('loginOverlay').style.display = 'none';
